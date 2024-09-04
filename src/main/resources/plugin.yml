@@ -1,0 +1,17 @@
+name: Manhuntgg
+version: 1.0-SNAPSHOT
+main: co.sakurastudios.manhuntgg.Manhuntgg
+api-version: 1.21
+
+commands:
+  manhunt:
+    description: Manhuntgg command
+    usage: /manhunt <start|stop>
+    permission: manhuntgg.command
+    aliases: [mh]
+
+  shout:
+    description: Shout command
+    usage: /shout <message>
+    permission: manhuntgg.shout
+    aliases: [sh]
