@@ -37,12 +37,10 @@ class TeamListeners(
         if (player.world == Bukkit.getWorld("manhunt_world")) {
             when {
                 teamManager.isHunter(player) -> {
-                    // Respawn the hunter near the runner (50 blocks away)
                     val runner = teamManager.getRunner()
                     player.teleport(runner.location.add(0.0, 1.0, 0.0))
                     MsgUtils.broadcastError("${player.name} (Hunter) has died")
                 }
-
                 teamManager.isRunner(player) -> {
                     player.gameMode = GameMode.SPECTATOR
                     MsgUtils.broadcastError("${player.name} (Runner) has died! The Hunters win!")
@@ -50,13 +48,11 @@ class TeamListeners(
                 }
             }
         }
-
     }
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
-
         if (gameManager.isGameActive()) {
             teamManager.reassignPlayerToTeam(player)
         }
@@ -65,13 +61,15 @@ class TeamListeners(
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         val player = event.player
-
-        if (teamManager.isHunter(player)) {
-            teamManager.removeHunter(player)
-            MsgUtils.broadcastError("${player.name} (Hunter) has left the game.")
-        } else if (teamManager.isRunner(player)) {
-            MsgUtils.broadcastError("${player.name} (Runner) has left the game. The game will end.")
-            gameManager.stop()
+        when {
+            teamManager.isHunter(player) -> {
+                teamManager.removeHunter(player)
+                MsgUtils.broadcastError("${player.name} (Hunter) has left the game.")
+            }
+            teamManager.isRunner(player) -> {
+                MsgUtils.broadcastError("${player.name} (Runner) has left the game. The game will end.")
+                gameManager.stop()
+            }
         }
     }
 

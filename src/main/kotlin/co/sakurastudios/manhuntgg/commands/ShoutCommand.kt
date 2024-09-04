@@ -22,7 +22,6 @@ class ShoutCommand(
             return true
         }
 
-        // Check if the game is active
         if (!gameManager.isGameActive()) {
             MsgUtils.sendError(sender, "The game is not currently running.")
             return true
@@ -41,7 +40,6 @@ class ShoutCommand(
         val message = args.joinToString(" ")
         val shoutMessage = Component.text("[SHOUT] ${sender.name}: $message").color(NamedTextColor.RED)
 
-        // Send the shout message to all players
         sender.server.onlinePlayers.forEach { it.sendMessage(shoutMessage) }
         return true
     }
@@ -51,7 +49,5 @@ class ShoutCommand(
         command: Command,
         alias: String,
         args: Array<out String>
-    ): MutableList<String>? {
-        return mutableListOf() // No tab completion needed for this command
-    }
+    ): MutableList<String> = mutableListOf()
 }

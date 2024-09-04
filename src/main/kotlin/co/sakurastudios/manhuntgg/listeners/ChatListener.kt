@@ -16,27 +16,20 @@ class ChatListener(
 
     @EventHandler
     fun onPlayerChat(event: AsyncPlayerChatEvent) {
-        val player = event.player
-
-        // Check if the game is active
         if (!gameManager.isGameActive()) {
-            return // If the game is not running, do nothing and let chat proceed normally
+            return // If the game is not running, let chat proceed normally
         }
 
-        // Check if the player is a hunter
+        val player = event.player
         if (teamManager.isHunter(player)) {
-            // Cancel the default message sending
             event.isCancelled = true
+            val hunterMessage = Component.text("[TEAM] ${player.name}: ${event.message}")
+                .color(NamedTextColor.RED)
 
-            // Prepare a message visible only to other hunters
-            val hunterMessage = Component.text("[TEAM] ${player.name}: ${event.message}").color(NamedTextColor.RED)
-
-            // Send the message only to hunters
-            event.recipients.forEach {
-                if (it is Player && teamManager.isHunter(it)) {
-                    it.sendMessage(hunterMessage)
-                }
-            }
+            event.recipients
+                .filterIsInstance<Player>()
+                .filter { teamManager.isHunter(it) }
+                .forEach { it.sendMessage(hunterMessage) }
         }
     }
 }

@@ -15,7 +15,7 @@ class GameManager(
 ) {
     private val isGameActiveOrStarting = AtomicBoolean(false)
 
-    fun isGameActive(): Boolean = isGameActiveOrStarting.get()
+    fun isGameActive() = isGameActiveOrStarting.get()
 
     fun start(): Boolean {
         if (!isGameActiveOrStarting.compareAndSet(false, true)) {
@@ -24,38 +24,41 @@ class GameManager(
         }
 
         return try {
-            if (!setupLobby()) return false
-
-            scheduleGameStart()
-            true
+            setupLobbyAndScheduleStart()
         } catch (e: Exception) {
-            handleStartError(e)
+            handleError(e, "Error during Manhunt game start")
             false
         }
     }
 
-    private fun setupLobby(): Boolean {
+    private fun setupLobbyAndScheduleStart(): Boolean {
         if (!lobbyManager.setupLobby()) {
             MsgUtils.broadcastError("Failed to set up the lobby. Aborting game start.")
             cleanup()
             return false
         }
+
+        scheduleGameStart()
         return true
     }
 
     private fun scheduleGameStart() {
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
             try {
-                if (setupManhuntWorld() && setupTeams()) {
-                    compassManager.giveCompassToHunters()
-                    compassManager.startCompassTracking()
-                    victoryManager.initialize()
-                    MsgUtils.broadcastManhunt("Manhunt has started! Good luck to all players!")
-                }
+                startGame()
             } catch (e: Exception) {
-                handleStartError(e, "Error during Manhunt world setup")
+                handleError(e, "Error during Manhunt world setup")
             }
-        }, 20 * 60) // Delay start to allow lobby time, e.g., 60 seconds
+        }, 20 * 60) // 60 seconds delay
+    }
+
+    private fun startGame() {
+        if (setupManhuntWorld() && setupTeams()) {
+            compassManager.giveCompassToHunters()
+            compassManager.startCompassTracking()
+            victoryManager.initialize()
+            MsgUtils.broadcastManhunt("Manhunt has started! Good luck to all players!")
+        }
     }
 
     private fun setupManhuntWorld(): Boolean {
@@ -76,13 +79,6 @@ class GameManager(
         return true
     }
 
-    private fun handleStartError(e: Exception, message: String = "Error during Manhunt game start") {
-        plugin.logger.severe("$message: ${e.message}")
-        e.printStackTrace()
-        cleanup()
-        MsgUtils.broadcastError("Failed to start Manhunt due to an error. Check console for details.")
-    }
-
     fun stop() {
         if (!isGameActiveOrStarting.get()) {
             MsgUtils.broadcastError("Manhunt is not active!")
@@ -93,9 +89,7 @@ class GameManager(
             cleanup()
             MsgUtils.broadcastManhunt("Manhunt has stopped! Thanks for playing!")
         } catch (e: Exception) {
-            plugin.logger.severe("Error during Manhunt game stop: ${e.message}")
-            e.printStackTrace()
-            MsgUtils.broadcastError("An error occurred while stopping Manhunt. Check console for details.")
+            handleError(e, "Error during Manhunt game stop")
         }
     }
 
@@ -105,5 +99,12 @@ class GameManager(
         compassManager.stopCompassTracking()
         isGameActiveOrStarting.set(false)
         teamManager.resetTeams()
+    }
+
+    private fun handleError(e: Exception, message: String) {
+        plugin.logger.severe("$message: ${e.message}")
+        e.printStackTrace()
+        cleanup()
+        MsgUtils.broadcastError("Failed to manage Manhunt due to an error. Check console for details.")
     }
 }

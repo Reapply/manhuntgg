@@ -16,7 +16,6 @@ import org.bukkit.scoreboard.Scoreboard
 import org.bukkit.scoreboard.Team
 
 class LobbyManager(private val plugin: JavaPlugin) : Listener {
-
     private lateinit var gameManager: GameManager
     var lobbyWorld: World? = null
     private lateinit var scoreboard: Scoreboard
@@ -39,10 +38,7 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
     }
 
     private fun retrieveLobbyWorld(): World? =
-        Bukkit.getWorld("manhunt_lobby") ?: createLobbyWorld() ?: run {
-            MsgUtils.broadcastError("Failed to set up the lobby world. Please check the console for errors.")
-            null
-        }
+        Bukkit.getWorld("manhunt_lobby") ?: createLobbyWorld()
 
     private fun createLobbyWorld(): World? =
         WorldCreator("manhunt_lobby").apply {
@@ -54,13 +50,14 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
             createSafePlatform()
             setupWorldBorder()
             setWorldProperties()
+        } ?: run {
+            MsgUtils.broadcastError("Failed to set up the lobby world. Please check the console for errors.")
+            null
         }
 
     private fun World.createSafePlatform() {
-        for (x in -5..5) {
-            for (z in -5..5) {
-                getBlockAt(x, 63, z).type = Material.BARRIER
-            }
+        for (x in -5..5) for (z in -5..5) {
+            getBlockAt(x, 63, z).type = Material.BARRIER
         }
     }
 
@@ -104,11 +101,7 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
 
     private fun setupLobbyScoreboard() {
         scoreboard = Bukkit.getScoreboardManager().newScoreboard
-        objective = scoreboard.registerNewObjective(
-            "lobby",
-            "dummy",
-            Component.text("Manhunt Lobby").color(NamedTextColor.GOLD)
-        )
+        objective = scoreboard.registerNewObjective("lobby", "dummy", Component.text("Manhunt Lobby").color(NamedTextColor.GOLD))
         objective.displaySlot = DisplaySlot.SIDEBAR
 
         countdownTeam = scoreboard.registerNewTeam("countdown") ?: scoreboard.getTeam("countdown")!!
@@ -131,7 +124,6 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
         String.format("%02d:%02d", seconds / 60, seconds % 60)
 
     private fun startCountdown() {
-        // Preload the world to prevent lag when players join
         gameManager.worldManager.preloadManhuntWorld()
 
         countdownTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
@@ -140,15 +132,13 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
 
             when (countdownSeconds) {
                 in listOf(30, 15, 10, 5, 4, 3, 2, 1) -> MsgUtils.broadcastInfo("Game starts in $countdownSeconds seconds!")
-
                 0 -> {
                     Bukkit.getScheduler().cancelTask(countdownTask)
-                    // Here we ensure the game manager proceeds to start the game
+                    // Ensure the game manager proceeds to start the game
                 }
             }
-        }, 0L, 20L) // Run every second
+        }, 0L, 20L)
     }
-
 
     fun cleanupLobby() {
         cancelCountdown()
@@ -162,7 +152,7 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
     }
 
     private fun sendPlayersToMainWorld() {
-        val mainWorld = Bukkit.getWorlds()[0] // Assuming the main world is the first world
+        val mainWorld = Bukkit.getWorlds()[0]
         Bukkit.getOnlinePlayers().forEach { player ->
             player.teleport(mainWorld.spawnLocation)
             player.resetToSurvival()
@@ -174,7 +164,7 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
         gameMode = GameMode.SURVIVAL
         allowFlight = false
         isFlying = false
-        scoreboard = Bukkit.getScoreboardManager().newScoreboard // Reset scoreboard
+        scoreboard = Bukkit.getScoreboardManager().newScoreboard
     }
 
     private fun unloadLobbyWorld() {
@@ -206,7 +196,6 @@ class LobbyManager(private val plugin: JavaPlugin) : Listener {
         if (event.player.world == lobbyWorld && event.to.y < 0) {
             teleportToLobby(event.player)
             event.player.playSound(event.player.location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f)
-
         }
     }
 }
