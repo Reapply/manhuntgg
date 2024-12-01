@@ -1,4 +1,38 @@
-# Project exclude paths
-/.gradle/
-/build/
-/build/classes/kotlin/main/
+# Java build artifacts
+*.class
+*.jar
+*.war
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+out/
+
+# Eclipse files
+.project
+.classpath
+.settings/
+
+# Maven files
+target/
+
+# Gradle files
+.gradle/
+build/
+
+# Logs
+logs/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Plugin-specific files
+config.yml
+plugin.yml
+
+# Other generated files
+*.log
+*.cache
+*.tmp
