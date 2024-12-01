@@ -1,17 +1,22 @@
 name: Manhuntgg
-version: 1.0-SNAPSHOT
+version: '${version}'
 main: co.sakurastudios.manhuntgg.Manhuntgg
-api-version: 1.21
-
+api-version: '1.21'
+author: SakuraStudios
+description: A manhunt plugin for your server!
 commands:
   manhunt:
-    description: Manhuntgg command
+    description: Main command for Manhunt
     usage: /manhunt <start|stop>
-    permission: manhuntgg.command
-    aliases: [mh]
-
+    permission: manhunt.admin
   shout:
-    description: Shout command
+    description: Broadcast a message to all players
     usage: /shout <message>
-    permission: manhuntgg.shout
-    aliases: [sh]
+    permission: manhunt.shout
+permissions:
+  manhunt.admin:
+    description: Allows control of manhunt games
+    default: op
+  manhunt.shout:
+    description: Allows using the shout command
+    default: true
