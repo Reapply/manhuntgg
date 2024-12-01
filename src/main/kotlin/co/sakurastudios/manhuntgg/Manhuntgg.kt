@@ -12,18 +12,15 @@ class Manhuntgg : JavaPlugin() {
     private var scoreboardManager: GameScoreboardManager? = null
 
     override fun onEnable() {
-        try {
+        server.scheduler.runTaskLater(this, Runnable {
             setupEngine()
             setupScoreboardManager()
             registerCommands()
             registerListeners()
             logger.info("ManhuntGG enabled successfully!")
-        } catch (e: Exception) {
-            logger.severe("Failed to enable ManhuntGG: ${e.message}")
-            e.printStackTrace()
-            server.pluginManager.disablePlugin(this)
-        }
+        }, 20L) // 1-second delay
     }
+
 
     private fun setupEngine() {
         gameEngine = GameEngine(this)

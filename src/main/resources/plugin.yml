@@ -4,6 +4,7 @@ main: co.sakurastudios.manhuntgg.Manhuntgg
 api-version: '1.21'
 author: SakuraStudios
 description: A manhunt plugin for your server!
+depend: [TAB]
 commands:
   manhunt:
     description: Main command for Manhunt

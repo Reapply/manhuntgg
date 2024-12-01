@@ -33,21 +33,20 @@ kotlin {
 
 tasks {
     shadowJar {
-        archiveClassifier.set("")  // Removes the "-all" suffix
+        archiveClassifier.set("") // Removes the "-all" suffix
 
-        // Relocate all Kotlin dependencies
+        // Relocate Kotlin and other dependencies, exclude TAB
         relocate("kotlin", "co.sakurastudios.manhuntgg.shaded.kotlin")
         relocate("kotlinx", "co.sakurastudios.manhuntgg.shaded.kotlinx")
         relocate("org.jetbrains", "co.sakurastudios.manhuntgg.shaded.org.jetbrains")
 
-        // Ensure all Kotlin dependencies are included
         dependencies {
-            include(dependency("org.jetbrains.kotlin:.*"))
-            include(dependency("org.jetbrains.kotlinx:.*"))
+            exclude(dependency("com.github.NEZNAMY:TAB-API:.*")) // Exclude TAB
         }
 
         minimize()
     }
+
 
     build {
         dependsOn(shadowJar)
